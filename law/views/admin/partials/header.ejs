@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function() {
+      try {
+        var rawFetch = window.fetch ? window.fetch.bind(window) : null;
+        var currentFetch = rawFetch;
+        var defineSafeProperty = function(target) {
+          if (!target) return;
+          try {
+            var desc = Object.getOwnPropertyDescriptor(target, 'fetch');
+            if (!desc || desc.configurable) {
+              Object.defineProperty(target, 'fetch', {
+                get: function() { return currentFetch; },
+                set: function(val) { currentFetch = val; },
+                configurable: true,
+                enumerable: true
+              });
+            }
+          } catch (e) {}
+        };
+        defineSafeProperty(window);
+        if (typeof Window !== 'undefined' && Window.prototype) {
+          defineSafeProperty(Window.prototype);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= admin_title %> | Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <a class="admin-brand" href="/admin/index.php">
+      <span>N</span> NORTHSTAR
+    </a>
+    <p class="admin-label">MAIN MENU</p>
+    <nav>
+      <a class="<%= admin_page === 'overview' ? 'active' : '' %>" href="/admin/index.php">◫ Overview</a>
+      <a class="<%= admin_page === 'settings' ? 'active' : '' %>" href="/admin/content.php?type=settings">⚙ Site settings</a>
+      <a class="<%= admin_page === 'menus' ? 'active' : '' %>" href="/admin/content.php?type=menus">☰ Navigation menu</a>
+      <a class="<%= admin_page === 'pages' ? 'active' : '' %>" href="/admin/content.php?type=pages">▤ Custom pages</a>
+      <a class="<%= admin_page === 'backgrounds' ? 'active' : '' %>" href="/admin/content.php?type=backgrounds">▧ Section backgrounds</a>
+      <a class="<%= admin_page === 'hero_slides' ? 'active' : '' %>" href="/admin/content.php?type=hero_slides">▣ Hero slider</a>
+      <a class="<%= admin_page === 'services' ? 'active' : '' %>" href="/admin/content.php?type=services">◇ Services</a>
+      <a class="<%= admin_page === 'team' ? 'active' : '' %>" href="/admin/content.php?type=team">♙ Team</a>
+      <a class="<%= admin_page === 'testimonials' ? 'active' : '' %>" href="/admin/content.php?type=testimonials">❝ Testimonials</a>
+      <a class="<%= admin_page === 'articles' ? 'active' : '' %>" href="/admin/content.php?type=articles">▤ Articles</a>
+      <a class="<%= admin_page === 'enquiries' ? 'active' : '' %>" href="/admin/content.php?type=enquiries">✉ Enquiries</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="/" target="_blank">↗ View website</a>
+      <a href="/admin/logout.php">⇥ Log out</a>
+    </div>
+  </aside>
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <p>Control center</p>
+        <h1><%= admin_title %></h1>
+      </div>
+      <div class="admin-user">
+        <span><%= admin_user.name %></span>
+        <b><%= admin_user.name.substring(0, 1).toUpperCase() %></b>
+      </div>
+    </header>
+    <% if (typeof flash_message !== 'undefined' && flash_message) { %>
+      <div class="notice"><%= flash_message %></div>
+    <% } %>

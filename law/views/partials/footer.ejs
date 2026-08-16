@@ -1,0 +1,41 @@
+</main>
+<section class="consultation-strip section-image"<%- sectionStyle('home_consultation') %>>
+  <div class="container strip-grid">
+    <div>
+      <p class="eyebrow">Expert advice, just a click away</p>
+      <h2>Let’s talk about<br><em>your next step.</em></h2>
+    </div>
+    <a class="btn btn-light" href="/contact.php#consultation">Make an appointment <span>↗</span></a>
+  </div>
+</section>
+<footer class="site-footer section-image"<%- sectionStyle('site_footer') %>>
+  <div class="container footer-grid">
+    <div>
+      <a class="brand brand-footer" href="/"><span class="brand-mark">N</span><span><%= setting('site_name', 'Northstar Legal') %></span></a>
+      <p><%= setting('footer_about', 'Practical immigration advice, handled with clarity and care.') %></p>
+      <small>© <%= new Date().getFullYear() %> <%= setting('company_legal', 'Northstar Legal Ltd.') %>. All rights reserved.</small>
+    </div>
+    <div>
+      <h4>Information</h4>
+      <a href="/">Home</a>
+      <a href="/about.php">About us</a>
+      <a href="/services.php">Services</a>
+      <a href="/articles.php">Insights</a>
+      <% if (typeof footer_pages !== 'undefined' && footer_pages && footer_pages.length > 0) { %>
+        <% footer_pages.forEach(page => { %>
+          <a href="/page.php?slug=<%= encodeURIComponent(page.slug) %>"><%= page.title %></a>
+        <% }); %>
+      <% } %>
+      <a href="/admin/login.php" style="margin-top: 15px; opacity: 0.6; font-size: 11px;">Admin Portal ↗</a>
+    </div>
+    <div>
+      <h4>Contact us</h4>
+      <a href="tel:<%= setting('phone', '+44 20 0000 0000').replace(/\s+/g, '') %>"><%= setting('phone', '+44 20 0000 0000') %></a>
+      <a href="mailto:<%= setting('email', 'hello@example.com') %>"><%= setting('email', 'hello@example.com') %></a>
+      <p><%- setting('address', '20 Example Street\nLondon, United Kingdom').replace(/\n/g, '<br>') %></p>
+    </div>
+  </div>
+</footer>
+<script src="/assets/js/main.js"></script>
+</body>
+</html>

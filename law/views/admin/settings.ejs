@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+
+<section class="admin-card form-card">
+  <div class="card-heading">
+    <div>
+      <p>Brand, contact & homepage</p>
+      <h2>Website settings</h2>
+    </div>
+  </div>
+  <form class="editor-form" method="post" action="/admin/content.php?type=settings">
+    <% setting_fields.forEach(field => { %>
+      <label class="<%= ['address','meta_description','hero_title','hero_text','intro_text','about_text','footer_about'].includes(field.key) ? 'wide' : '' %>">
+        <%= field.label %>
+        <% if (['address','meta_description','hero_title','hero_text','intro_text','about_text','footer_about'].includes(field.key)) { %>
+          <textarea name="settings[<%= field.key %>]" rows="<%= field.key === 'hero_title' ? 3 : 4 %>"><%= settings[field.key] || '' %></textarea>
+        <% } else { %>
+          <input name="settings[<%= field.key %>]" value="<%= settings[field.key] || '' %>">
+        <% } %>
+      </label>
+    <% }); %>
+    <div class="form-actions">
+      <button type="submit">Save changes →</button>
+    </div>
+  </form>
+</section>
+
+<%- include('partials/footer') %>

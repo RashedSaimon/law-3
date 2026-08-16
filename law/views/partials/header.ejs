@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function() {
+      try {
+        var rawFetch = window.fetch ? window.fetch.bind(window) : null;
+        var currentFetch = rawFetch;
+        var defineSafeProperty = function(target) {
+          if (!target) return;
+          try {
+            var desc = Object.getOwnPropertyDescriptor(target, 'fetch');
+            if (!desc || desc.configurable) {
+              Object.defineProperty(target, 'fetch', {
+                get: function() { return currentFetch; },
+                set: function(val) { currentFetch = val; },
+                configurable: true,
+                enumerable: true
+              });
+            }
+          } catch (e) {}
+        };
+        defineSafeProperty(window);
+        if (typeof Window !== 'undefined' && Window.prototype) {
+          defineSafeProperty(Window.prototype);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="<%= setting('meta_description', 'Straightforward immigration advice and representation for individuals, families and businesses.') %>">
+  <title><%= page_title %> | <%= setting('site_name', 'Northstar Legal') %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="/"><span class="brand-mark">N</span><span><%= setting('site_name', 'Northstar Legal') %></span></a>
+    <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+    <nav class="site-nav">
+      <% if (typeof navTree !== 'undefined' && navTree && navTree.length > 0) { %>
+        <% navTree.forEach(node => { 
+          const { item, submenus } = node;
+          const hasDropdown = submenus && submenus.length > 0;
+          let isActive = false;
+          if (typeof current !== 'undefined') {
+            if (item.url === '/' && current === 'index') isActive = true;
+            else if ((item.url === '/about.php' || item.url === '/about') && current === 'about') isActive = true;
+            else if ((item.url === '/services.php' || item.url === '/services') && (current === 'services' || current === 'service')) isActive = true;
+            else if ((item.url === '/articles.php' || item.url === '/articles') && (current === 'articles' || current === 'article')) isActive = true;
+            else if ((item.url === '/contact.php' || item.url === '/contact') && current === 'contact') isActive = true;
+          }
+          if (typeof current_slug !== 'undefined' && current_slug && hasDropdown) {
+            const matchInTree = submenus.some(s => s.page.slug === current_slug || (s.children && s.children.some(c => c.slug === current_slug)));
+            if (matchInTree) isActive = true;
+          }
+        %>
+          <% if (hasDropdown) { %>
+            <div class="nav-dropdown <%= isActive ? 'active' : '' %>">
+              <a href="<%= item.url %>" class="nav-link dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false">
+                <span class="nav-icon"><%- renderMenuIcon(item.icon) %></span>
+                <span class="nav-text"><%= item.title %></span>
+                <svg class="dropdown-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </a>
+              <div class="dropdown-menu">
+                <% submenus.forEach(subnode => { 
+                  const l2Page = subnode.page;
+                  const l3Children = subnode.children || [];
+                  const hasL3 = l3Children.length > 0;
+                  const isL2Active = (typeof current_slug !== 'undefined' && (current_slug === l2Page.slug || l3Children.some(c => c.slug === current_slug)));
+                %>
+                  <% if (hasL3) { %>
+                    <div class="dropdown-submenu <%= isL2Active ? 'active' : '' %>">
+                      <div class="dropdown-submenu-row">
+                        <a class="dropdown-item submenu-link <%= (typeof current_slug !== 'undefined' && current_slug === l2Page.slug) ? 'active' : '' %>" href="/page.php?slug=<%= encodeURIComponent(l2Page.slug) %>">
+                          <span class="nav-icon"><%- renderMenuIcon(l2Page.icon || 'document') %></span>
+                          <span class="item-title"><%= l2Page.title %></span>
+                        </a>
+                        <span class="submenu-arrow-wrap" aria-hidden="true">
+                          <svg class="submenu-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </span>
+                      </div>
+                      <div class="dropdown-flyout">
+                        <% l3Children.forEach(l3 => { %>
+                          <a class="dropdown-item <%= (typeof current_slug !== 'undefined' && current_slug === l3.slug) ? 'active' : '' %>" href="/page.php?slug=<%= encodeURIComponent(l3.slug) %>">
+                            <span class="nav-icon"><%- renderMenuIcon(l3.icon || 'document') %></span>
+                            <span class="item-title"><%= l3.title %></span>
+                          </a>
+                        <% }); %>
+                      </div>
+                    </div>
+                  <% } else { %>
+                    <a class="dropdown-item <%= (typeof current_slug !== 'undefined' && current_slug === l2Page.slug) ? 'active' : '' %>" href="/page.php?slug=<%= encodeURIComponent(l2Page.slug) %>">
+                      <span class="nav-icon"><%- renderMenuIcon(l2Page.icon || 'document') %></span>
+                      <span class="item-title"><%= l2Page.title %></span>
+                    </a>
+                  <% } %>
+                <% }); %>
+              </div>
+            </div>
+          <% } else { %>
+            <a class="nav-link <%= isActive ? 'active' : '' %>" href="<%= item.url %>">
+              <span class="nav-icon"><%- renderMenuIcon(item.icon) %></span>
+              <span class="nav-text"><%= item.title %></span>
+            </a>
+          <% } %>
+        <% }); %>
+      <% } else { %>
+        <a class="<%= current === 'index' ? 'active' : '' %>" href="/">Home</a>
+        <a class="<%= current === 'about' ? 'active' : '' %>" href="/about.php">About Us</a>
+        <a class="<%= current === 'services' ? 'active' : '' %>" href="/services.php">Services</a>
+        <a class="<%= current === 'articles' || current === 'article' ? 'active' : '' %>" href="/articles.php">Insights</a>
+        <a class="<%= current === 'contact' ? 'active' : '' %>" href="/contact.php">Contact</a>
+      <% } %>
+    </nav>
+    <a class="btn btn-small" href="/contact.php#consultation">Book consultation <span>↗</span></a>
+  </div>
+</header>
+<main>

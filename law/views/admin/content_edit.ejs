@@ -1,0 +1,180 @@
+<%- include('partials/header') %>
+
+<section class="admin-card form-card">
+  <div class="card-heading">
+    <div>
+      <p><%= id ? 'Edit item' : 'Create item' %></p>
+      <h2><%= config.label %></h2>
+    </div>
+    <a href="/admin/content.php?type=<%= type %>">← Back to list</a>
+  </div>
+  <form class="editor-form" method="post" action="/admin/content.php?type=<%= type %>" enctype="multipart/form-data">
+    <input type="hidden" name="action" value="save">
+    <input type="hidden" name="id" value="<%= id || 0 %>">
+
+    <% Object.entries(config.fields).forEach(([field, label]) => { %>
+      <% 
+        let value = item ? item[field] : (field === 'is_active' ? 1 : ''); 
+        const isWide = ['excerpt', 'content', 'bio', 'quote', 'body', 'text'].includes(field);
+      %>
+      <label class="<%= isWide ? 'wide' : '' %>">
+        <%= label %>
+
+        <% if (['content', 'bio', 'quote', 'body', 'excerpt', 'text'].includes(field)) { %>
+          <% if (type === 'pages' && field === 'content') { %>
+            <small class="form-hint">HTML supported: h1–h6, p, strong, em, links, ul/ol/li, blockquote and hr.</small>
+          <% } %>
+          <textarea name="<%= field %>" rows="<%= field === 'body' || field === 'content' ? 10 : 4 %>"><%= value || '' %></textarea>
+        <% } else if (field === 'is_active') { %>
+          <span class="toggle">
+            <input type="checkbox" name="is_active" value="1" <%= value ? 'checked' : '' %>> Show this on the website
+          </span>
+        <% } else if (field === 'parent_menu') { %>
+          <select name="parent_menu" id="parent_menu_select" onchange="updateParentPageOptions()">
+            <option value="personal_immigration" <%= value === 'personal_immigration' ? 'selected' : '' %>>Personal Immigration (Layer 1)</option>
+            <option value="business_immigrations" <%= value === 'business_immigrations' ? 'selected' : '' %>>Business Immigration (Layer 1)</option>
+            <option value="none" <%= value === 'none' || !value ? 'selected' : '' %>>None (Standalone / Footer only)</option>
+          </select>
+        <% } else if (field === 'parent_page_id') { %>
+          <select name="parent_page_id" id="parent_page_id_select">
+            <option value="0" <%= !value || Number(value) === 0 ? 'selected' : '' %>>[None - This is a Main Submenu Category (Layer 2)]</option>
+            <% if (typeof allPages !== 'undefined' && allPages && allPages.length > 0) { %>
+              <% allPages.filter(p => (!item || p.id !== item.id) && (!p.parent_page_id || Number(p.parent_page_id) === 0)).forEach(p => { %>
+                <option value="<%= p.id %>" data-parent-menu="<%= p.parent_menu || 'none' %>" <%= Number(value) === Number(p.id) ? 'selected' : '' %>>
+                  <%= p.parent_menu === 'personal_immigration' ? '[Personal]' : p.parent_menu === 'business_immigrations' ? '[Business]' : '[Other]' %> Layer 2: <%= p.title %>
+                </option>
+              <% }); %>
+            <% } %>
+          </select>
+          <small class="form-hint">Choose a Layer 2 parent page if this page belongs as a Layer 3 sub-page under it.</small>
+        <% } else if (field === 'icon') { %>
+          <div class="icon-picker-group">
+            <input type="hidden" name="icon" id="selected-icon-input" value="<%= value || (type === 'pages' ? 'document' : 'home') %>">
+            <div class="icon-selector-grid">
+              <% 
+                const availableIcons = [
+                  { key: 'home', label: 'Home' },
+                  { key: 'list', label: 'List' },
+                  { key: 'database', label: 'Database' },
+                  { key: 'contact', label: 'Contact' },
+                  { key: 'gift', label: 'Gift / Surgery' },
+                  { key: 'document', label: 'Document' },
+                  { key: 'briefcase', label: 'Briefcase' },
+                  { key: 'shield', label: 'Shield' },
+                  { key: 'award', label: 'Award' },
+                  { key: 'star', label: 'Star' },
+                  { key: 'user', label: 'User' },
+                  { key: 'scale', label: 'Scale / Legal' }
+                ];
+                const currentIcon = value || (type === 'pages' ? 'document' : 'home');
+              %>
+              <% availableIcons.forEach(ic => { %>
+                <button type="button" class="icon-choice-btn <%= currentIcon === ic.key ? 'active' : '' %>" data-icon="<%= ic.key %>" onclick="selectMenuIcon('<%= ic.key %>')">
+                  <span class="icon-choice-svg"><%- renderMenuIcon(ic.key) %></span>
+                  <span class="icon-choice-name"><%= ic.label %></span>
+                </button>
+              <% }); %>
+            </div>
+          </div>
+        <% } else if (field === 'status') { %>
+          <select name="status">
+            <option value="draft" <%= value === 'draft' ? 'selected' : '' %>>Draft</option>
+            <option value="published" <%= value === 'published' || !value ? 'selected' : '' %>>Published</option>
+          </select>
+        <% } else if (field === 'published_at') { %>
+          <input type="datetime-local" name="published_at" value="<%= value ? new Date(value).toISOString().slice(0,16) : new Date().toISOString().slice(0,16) %>">
+        <% } else if (field === 'sort_order') { %>
+          <input type="number" name="sort_order" value="<%= value !== undefined && value !== '' ? value : 0 %>">
+        <% } else { %>
+          <input name="<%= field %>" value="<%= value || '' %>" <%= field === 'title' || field === 'name' ? 'required' : '' %>>
+        <% } %>
+      </label>
+    <% }); %>
+
+    <label class="wide">
+      <%= type === 'pages' ? 'Page banner image' : 'Image (JPG, PNG or WebP)' %>
+      <small class="form-hint"><%= config.image_help || 'JPG, PNG or WebP; maximum file size 4 MB.' %></small>
+      <input type="file" name="image" accept="image/jpeg,image/png,image/webp">
+    </label>
+
+    <% if (item && item.image_path) { %>
+      <div style="grid-column: 1/-1;">
+        <p style="font-size: 11px; margin-bottom: 5px; color: #788a8b;">Current Image:</p>
+        <img class="image-preview" src="<%= item.image_path %>" alt="Current image">
+      </div>
+    <% } %>
+
+    <div class="form-actions" style="display: flex; justify-content: space-between; align-items: center;">
+      <button type="submit">Save item →</button>
+      <% if (id && item) { %>
+        <button type="button" class="btn-danger-outline" onclick="openDeleteModal('<%= type %>', '<%= id %>', '<%= (item.title || item.label || item.name || item.client_name || 'this item').replace(/'/g, "\\'") %>')">Delete this <%= type === 'menus' ? 'menu item' : 'item' %></button>
+      <% } %>
+    </div>
+  </form>
+</section>
+
+<% if (id && item) { %>
+  <!-- Custom Delete Confirmation Modal (Iframe-safe) -->
+  <div id="deleteModal" class="admin-modal-backdrop" style="display:none;" onclick="if(event.target===this) closeDeleteModal()">
+    <div class="admin-modal-card">
+      <div class="admin-modal-header">
+        <h3>Confirm Deletion</h3>
+        <button type="button" class="modal-close-btn" onclick="closeDeleteModal()">&times;</button>
+      </div>
+      <div class="admin-modal-body">
+        <p>Are you sure you want to permanently delete <strong id="deleteItemTitle">this item</strong>?</p>
+        <small style="display:block; margin-top: 8px; color: #788a8b;">This will remove the item from the live website and database.</small>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="modal-btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+        <form id="deleteModalForm" method="post" action="/admin/content.php?type=<%= type %>" style="margin: 0;">
+          <input type="hidden" name="action" value="delete">
+          <input type="hidden" name="type" id="modalDeleteType" value="<%= type %>">
+          <input type="hidden" name="id" id="modalDeleteId" value="<%= id %>">
+          <button type="submit" class="modal-btn-confirm">Yes, Delete Item</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openDeleteModal(type, id, title) {
+      var modal = document.getElementById('deleteModal');
+      var titleEl = document.getElementById('deleteItemTitle');
+      if (modal) {
+        if (titleEl) titleEl.textContent = '"' + title + '"';
+        modal.style.display = 'flex';
+      }
+    }
+
+    function closeDeleteModal() {
+      var modal = document.getElementById('deleteModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeDeleteModal();
+    });
+  </script>
+<% } %>
+
+<script>
+  function selectMenuIcon(iconKey) {
+    var input = document.getElementById('selected-icon-input');
+    if (input) {
+      input.value = iconKey;
+    }
+    var buttons = document.querySelectorAll('.icon-choice-btn');
+    buttons.forEach(function(btn) {
+      if (btn.getAttribute('data-icon') === iconKey) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+  }
+</script>
+
+<%- include('partials/footer') %>

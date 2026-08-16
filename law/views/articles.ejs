@@ -1,0 +1,30 @@
+<%- include('partials/header') %>
+
+<section class="inner-hero compact section-image"<%- sectionStyle('articles_hero') %>>
+  <div class="container">
+    <p class="eyebrow">Knowledge hub</p>
+    <h1>Clarity for your<br><em>next decision.</em></h1>
+  </div>
+</section>
+
+<section class="section section-image"<%- sectionStyle('articles_list') %>>
+  <div class="container article-grid article-grid-full">
+    <% articles.forEach(article => { %>
+      <article class="article-card">
+        <% if (article.image_path) { %>
+          <img src="<%= article.image_path %>" alt="">
+        <% } else { %>
+          <div class="article-image">
+            <span><%= article.category ? article.category.substring(0, 2).toUpperCase() : 'IN' %></span>
+          </div>
+        <% } %>
+        <p class="article-meta"><%= article.category %> · <%= formatDate(article.published_at) %></p>
+        <h3><%= article.title %></h3>
+        <p><%= article.excerpt %></p>
+        <a class="text-link" href="/article.php?slug=<%= encodeURIComponent(article.slug) %>">Read more <span>↗</span></a>
+      </article>
+    <% }); %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

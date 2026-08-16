@@ -1,0 +1,61 @@
+<%- include('partials/header') %>
+
+<section class="inner-hero section-image"<%- sectionStyle('about_hero') %>>
+  <div class="container">
+    <p class="eyebrow">Who we are</p>
+    <h1>Guidance with<br><em>humanity.</em></h1>
+    <p>We pair immigration expertise with straightforward advice, so you can move forward with confidence.</p>
+  </div>
+</section>
+
+<section class="section section-image"<%- sectionStyle('about_story') %>>
+  <div class="container story-grid">
+    <div class="image-panel section-image"<%- sectionStyle('about_story_image') %>>
+      <span>YOUR<br>FUTURE<br>STARTS<br>HERE</span>
+    </div>
+    <div>
+      <p class="eyebrow">Our approach</p>
+      <h2><%= setting('about_heading', 'A clear path through complex decisions.') %></h2>
+      <p class="lead"><%= setting('about_text', 'Every immigration matter is personal. We listen carefully, explain the options in plain language and manage the process proactively—keeping you informed at each stage.') %></p>
+      <div class="values">
+        <div>
+          <b>01</b>
+          <h3>Clear communication</h3>
+          <p>No jargon. No surprises.</p>
+        </div>
+        <div>
+          <b>02</b>
+          <h3>Thoughtful strategy</h3>
+          <p>Advice built around your goals.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="team-section section section-image"<%- sectionStyle('about_team') %>>
+  <div class="container">
+    <div class="section-heading">
+      <p class="eyebrow">Our people</p>
+      <h2>Meet the <em>team.</em></h2>
+    </div>
+    <div class="team-grid">
+      <% team.forEach(member => { %>
+        <article class="team-card">
+          <% if (member.image_path) { %>
+            <img src="<%= member.image_path %>" alt="<%= member.name %>">
+          <% } else { %>
+            <div class="team-photo">
+              <span><%= member.name.substring(0, 1).toUpperCase() %></span>
+            </div>
+          <% } %>
+          <h3><%= member.name %></h3>
+          <p><%= member.role %></p>
+          <small><%= member.bio %></small>
+        </article>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

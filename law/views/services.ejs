@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+
+<section class="inner-hero services-hero section-image"<%- sectionStyle('services_hero') %>>
+  <div class="container">
+    <p class="eyebrow">What we do</p>
+    <h1>Expertise for every<br><em>stage of the journey.</em></h1>
+    <p>Focused advice for individuals, families and ambitious businesses.</p>
+  </div>
+</section>
+
+<section class="section section-image"<%- sectionStyle('services_list') %>>
+  <div class="container service-list">
+    <% services.forEach((service, i) => { %>
+      <article class="service-row" id="service-<%= service.id %>">
+        <span>0<%= i + 1 %></span>
+        <div>
+          <p class="eyebrow"><%= service.tagline %></p>
+          <h2><%= service.title %></h2>
+        </div>
+        <p><%= service.content %></p>
+        <a href="/contact.php?topic=<%= encodeURIComponent(service.title) %>#consultation" class="round-link" aria-label="Enquire about <%= service.title %>">↗</a>
+      </article>
+    <% }); %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
