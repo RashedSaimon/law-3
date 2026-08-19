@@ -1,0 +1,272 @@
+<%- include('partials/header') %>
+
+<section class="admin-card">
+  <div class="card-heading">
+    <div>
+      <p>Manage <%= config.label %></p>
+      <h2><%= config.label %></h2>
+    </div>
+    <a href="/admin/content.php?type=<%= type %>&action=new" class="btn-primary" style="text-decoration: none;">
+      + Add New Item
+    </a>
+  </div>
+
+  <% if (typeof rows !== 'undefined' && rows && rows.length > 0) { %>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th style="width: 50px;">#</th>
+          <% if (type === 'pages') { %>
+            <th>Page Title</th>
+            <th>Primary Menu (Layer 1)</th>
+            <th>Parent Category (Layer 2)</th>
+            <th>Slug / URL</th>
+            <th>Status</th>
+          <% } else if (type === 'menus') { %>
+            <th>Menu Label</th>
+            <th>Destination Link</th>
+            <th>Icon</th>
+            <th>Order</th>
+            <th>Active</th>
+          <% } else if (type === 'articles') { %>
+            <th>Article Title</th>
+            <th>Category</th>
+            <th>Published Date</th>
+            <th>Status</th>
+          <% } else if (type === 'services') { %>
+            <th>Service Title</th>
+            <th>Tagline</th>
+            <th>Order</th>
+            <th>Active</th>
+          <% } else if (type === 'team') { %>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Order</th>
+            <th>Active</th>
+          <% } else if (type === 'testimonials') { %>
+            <th>Client Name</th>
+            <th>Role</th>
+            <th>Quote Preview</th>
+            <th>Active</th>
+          <% } else if (type === 'hero_slides') { %>
+            <th>Headline</th>
+            <th>Label</th>
+            <th>Button Link</th>
+            <th>Active</th>
+          <% } else if (type === 'hero_dropdown') { %>
+            <th>Dropdown Option Label</th>
+            <th>Linked Destination / Page</th>
+            <th>Display Order</th>
+            <th>Active</th>
+          <% } else if (type === 'clients') { %>
+            <th>Logo Preview</th>
+            <th>Client / Company Name</th>
+            <th>Website Link</th>
+            <th>Order</th>
+            <th>Active</th>
+          <% } else if (type === 'backgrounds') { %>
+            <th>Section Name</th>
+            <th>Section Key</th>
+            <th>Background Image</th>
+            <th>Active</th>
+          <% } else { %>
+            <th>Title / Name</th>
+            <th>Active</th>
+          <% } %>
+          <th style="width: 140px; text-align: right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.forEach((row, idx) => { %>
+          <tr>
+            <td style="color: #6b8284;"><%= row.sort_order || (idx + 1) %></td>
+
+            <% if (type === 'pages') { %>
+              <td>
+                <strong><%= row.title %></strong>
+                <% if (row.image_path) { %>
+                  <small style="display: block; color: #8f6e37;">Banner attached</small>
+                <% } %>
+              </td>
+              <td>
+                <% if (row.parent_menu === 'personal_immigration') { %>
+                  <span class="badge" style="background: #e0f2fe; color: #0369a1;">Personal Immigration</span>
+                <% } else if (row.parent_menu === 'business_immigrations') { %>
+                  <span class="badge" style="background: #fef3c7; color: #92400e;">Business Immigration</span>
+                <% } else { %>
+                  <span class="badge" style="background: #f1f5f9; color: #475569;">Standalone</span>
+                <% } %>
+              </td>
+              <td>
+                <% 
+                  const parentPage = row.parent_page_id ? allPages.find(p => Number(p.id) === Number(row.parent_page_id)) : null;
+                %>
+                <%= parentPage ? parentPage.title : '— (Main Level 2 Category)' %>
+              </td>
+              <td>
+                <a href="/page.php?slug=<%= encodeURIComponent(row.slug) %>" target="_blank" style="color: #927541; text-decoration: underline;">
+                  /<%= row.slug %> ↗
+                </a>
+              </td>
+              <td>
+                <span class="badge <%= row.status === 'published' ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.status %>
+                </span>
+              </td>
+
+            <% } else if (type === 'menus') { %>
+              <td>
+                <strong><%= row.title %></strong>
+              </td>
+              <td><code><%= row.url %></code></td>
+              <td><span class="nav-icon"><%- renderMenuIcon(row.icon) %></span> <small><%= row.icon %></small></td>
+              <td><%= row.sort_order %></td>
+              <td>
+                <span class="badge <%= row.is_active ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.is_active ? 'Visible' : 'Hidden' %>
+                </span>
+              </td>
+
+            <% } else if (type === 'articles') { %>
+              <td>
+                <strong><%= row.title %></strong>
+                <a href="/article.php?slug=<%= encodeURIComponent(row.slug) %>" target="_blank" style="margin-left: 6px; font-size: 11px; color: #927541;">↗</a>
+              </td>
+              <td><%= row.category %></td>
+              <td><%= formatDate(row.published_at) %></td>
+              <td>
+                <span class="badge <%= row.status === 'published' ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.status %>
+                </span>
+              </td>
+
+            <% } else if (type === 'services') { %>
+              <td><strong><%= row.title %></strong></td>
+              <td><%= row.tagline || '—' %></td>
+              <td><%= row.sort_order %></td>
+              <td>
+                <span class="badge <%= row.is_active ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.is_active ? 'Active' : 'Disabled' %>
+                </span>
+              </td>
+
+            <% } else if (type === 'team') { %>
+              <td>
+                <strong><%= row.name %></strong>
+              </td>
+              <td><%= row.role %></td>
+              <td><%= row.sort_order %></td>
+              <td>
+                <span class="badge <%= row.is_active ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.is_active ? 'Active' : 'Hidden' %>
+                </span>
+              </td>
+
+            <% } else if (type === 'testimonials') { %>
+              <td><strong><%= row.client_name %></strong></td>
+              <td><%= row.client_role || '—' %></td>
+              <td style="max-width: 320px; font-style: italic; color: #4a5568;">"<%= (row.quote || '').substring(0, 80) %>..."</td>
+              <td>
+                <span class="badge <%= row.is_active ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.is_active ? 'Active' : 'Hidden' %>
+                </span>
+              </td>
+
+            <% } else if (type === 'hero_slides') { %>
+              <td><strong><%= row.title || 'Slide' %></strong></td>
+              <td><%= row.eyebrow %></td>
+              <td><code><%= row.button_url %></code></td>
+              <td>
+                <span class="badge <%= row.is_active ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.is_active ? 'Active' : 'Disabled' %>
+                </span>
+              </td>
+
+            <% } else if (type === 'hero_dropdown') { %>
+              <td>
+                <strong style="font-size: 15px; color: #111e28;"><%= row.title %></strong>
+              </td>
+              <td>
+                <% 
+                  const linkedPage = row.page_id && allPages ? allPages.find(p => Number(p.id) === Number(row.page_id)) : null;
+                %>
+                <% if (linkedPage) { %>
+                  <span class="badge" style="background: #e0f2fe; color: #0369a1; margin-right: 6px;">Page: <%= linkedPage.title %></span>
+                  <a href="/page.php?slug=<%= linkedPage.slug %>" target="_blank" style="color: #927541; text-decoration: underline; font-size: 13px;">/page.php?slug=<%= linkedPage.slug %> ↗</a>
+                <% } else if (row.target_url) { %>
+                  <a href="<%= row.target_url %>" target="_blank" style="color: #927541; text-decoration: underline; font-size: 13px;"><%= row.target_url %> ↗</a>
+                <% } else { %>
+                  <span style="color: #a0aec0;">None configured</span>
+                <% } %>
+              </td>
+              <td><%= row.sort_order %></td>
+              <td>
+                <span class="badge <%= row.is_active ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.is_active ? 'Active' : 'Hidden' %>
+                </span>
+              </td>
+
+            <% } else if (type === 'clients') { %>
+              <td style="background: #f8fafc; padding: 6px 12px;">
+                <% if (row.image_path) { %>
+                  <img src="<%= row.image_path %>" alt="<%= row.name %>" style="max-height: 38px; max-width: 140px; object-fit: contain;">
+                <% } else { %>
+                  <span style="font-weight: 700; color: #4a5568;"><%= row.name %></span>
+                <% } %>
+              </td>
+              <td><strong><%= row.name %></strong></td>
+              <td>
+                <% if (row.website_url) { %>
+                  <a href="<%= row.website_url %>" target="_blank" style="color: #927541; text-decoration: underline;"><%= row.website_url %> ↗</a>
+                <% } else { %>
+                  <span style="color: #a0aec0;">—</span>
+                <% } %>
+              </td>
+              <td><%= row.sort_order %></td>
+              <td>
+                <span class="badge <%= row.is_active ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.is_active ? 'Active' : 'Hidden' %>
+                </span>
+              </td>
+
+            <% } else if (type === 'backgrounds') { %>
+              <td><strong><%= row.label %></strong></td>
+              <td><code><%= row.section_key %></code></td>
+              <td>
+                <% if (row.image_path) { %>
+                  <a href="<%= row.image_path %>" target="_blank" style="color: #927541; text-decoration: underline;">View image ↗</a>
+                <% } else { %>
+                  <span style="color: #a0aec0;">None uploaded</span>
+                <% } %>
+              </td>
+              <td>
+                <span class="badge <%= row.is_active ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.is_active ? 'Active' : 'Disabled' %>
+                </span>
+              </td>
+
+            <% } else { %>
+              <td><strong><%= row.title || row.name || 'Item #' + row.id %></strong></td>
+              <td>
+                <span class="badge <%= row.is_active ? 'badge-success' : 'badge-draft' %>">
+                  <%= row.is_active ? 'Active' : 'Disabled' %>
+                </span>
+              </td>
+            <% } %>
+
+            <td style="text-align: right;">
+              <div class="table-actions" style="justify-content: flex-end;">
+                <a href="/admin/content.php?type=<%= type %>&action=edit&id=<%= row.id %>" class="action-edit">Edit</a>
+                <a href="/admin/content.php?type=<%= type %>&action=delete&id=<%= row.id %>" class="action-delete" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+              </div>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p style="color: #6b8284; padding: 30px 0; text-align: center;">No items found. Click "+ Add New Item" above to create one.</p>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,64 @@
+<%- include('partials/header') %>
+
+<section class="admin-card form-card">
+  <div class="card-heading">
+    <div>
+      <p>Brand, contact & homepage</p>
+      <h2>Website settings</h2>
+    </div>
+  </div>
+  <form class="editor-form" method="post" action="/admin/content.php?type=settings" enctype="multipart/form-data">
+    <% setting_fields.forEach(field => { %>
+      <label class="<%= ['address','meta_description','hero_title','hero_text','intro_text','about_text','footer_about'].includes(field.key) ? 'wide' : '' %>">
+        <%= field.label %>
+        <% if (['address','meta_description','hero_title','hero_text','intro_text','about_text','footer_about'].includes(field.key)) { %>
+          <textarea name="settings[<%= field.key %>]" rows="<%= field.key === 'hero_title' ? 3 : 4 %>"><%= settings[field.key] || '' %></textarea>
+        <% } else { %>
+          <input name="settings[<%= field.key %>]" value="<%= settings[field.key] || '' %>">
+        <% } %>
+      </label>
+    <% }); %>
+
+    <div style="grid-column: 1/-1; margin: 30px 0 10px; padding-top: 25px; border-top: 2px solid #e2ddd3;">
+      <h3 style="font-family: var(--serif); font-size: 22px; margin: 0 0 6px; color: #102b2d;">Practice Brochure & Footer Download</h3>
+      <p style="font-size: 13px; color: #627778; margin: 0 0 20px;">Upload a PDF or document that clients can download directly from the website footer.</p>
+    </div>
+
+    <label>
+      Brochure section eyebrow
+      <input name="settings[brochure_eyebrow]" value="<%= settings['brochure_eyebrow'] || 'DOWNLOAD OUR PRACTICE GUIDE' %>">
+    </label>
+
+    <label>
+      Brochure button text
+      <input name="settings[brochure_btn_text]" value="<%= settings['brochure_btn_text'] || 'Download PDF Guide' %>">
+    </label>
+
+    <label class="wide">
+      Brochure heading
+      <input name="settings[brochure_title]" value="<%= settings['brochure_title'] || 'Comprehensive Legal & Immigration Services Brochure' %>">
+    </label>
+
+    <label class="wide">
+      Brochure description
+      <textarea name="settings[brochure_desc]" rows="2"><%= settings['brochure_desc'] || 'Download our official guidance pack containing fee structures, document checklists, and UK immigration process roadmaps.' %></textarea>
+    </label>
+
+    <label class="wide">
+      Upload Brochure File (.pdf, .doc, .docx)
+      <small class="form-hint">Upload a PDF or word file from your computer. Maximum file size: 10 MB.</small>
+      <input type="file" name="brochure_file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+      <% if (settings['brochure_url']) { %>
+        <div style="margin-top: 8px; font-size: 13px;">
+          Current File: <a href="<%= settings['brochure_url'] %>" target="_blank" style="color: #8f6e37; font-weight: 600; text-decoration: underline;">View Current Brochure File ↗</a>
+        </div>
+      <% } %>
+    </label>
+
+    <div class="form-actions">
+      <button type="submit">Save changes →</button>
+    </div>
+  </form>
+</section>
+
+<%- include('partials/footer') %>

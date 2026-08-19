@@ -1,0 +1,33 @@
+<%- include('partials/header') %>
+
+<section class="inner-hero"<%- sectionStyle('services_hero') %>>
+  <div class="container">
+    <p class="eyebrow">OUR PRACTICE AREAS</p>
+    <h1>Comprehensive services.<br><em>Clear, fixed fees.</em></h1>
+    <p>From individual applications and family visas to corporate sponsorship and appeals, we guide you through every stage with expertise and confidence.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="service-list">
+      <% if (typeof services !== 'undefined' && services && services.length > 0) { %>
+        <% services.forEach((service, idx) => { %>
+          <div class="service-row">
+            <span>0<%= idx + 1 %></span>
+            <div>
+              <p class="eyebrow"><%= service.tagline || 'PRACTICE AREA' %></p>
+              <h2><%= service.title %></h2>
+            </div>
+            <p><%= service.content || service.excerpt %></p>
+            <a class="round-link" href="/contact.php?topic=<%= encodeURIComponent(service.title) %>#consultation" title="Enquire about <%= service.title %>">
+              →
+            </a>
+          </div>
+        <% }); %>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

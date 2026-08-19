@@ -1,0 +1,74 @@
+<%- include('partials/header') %>
+
+<div class="dashboard-stats">
+  <% counts.forEach(c => { %>
+    <a href="/admin/content.php?type=<%= c.type %>" class="stat-card">
+      <p><%= c.label %></p>
+      <div class="stat-val"><%= c.count %></div>
+    </a>
+  <% }); %>
+</div>
+
+<section class="admin-card">
+  <div class="card-heading">
+    <div>
+      <p>Consultations & Inbound Leads</p>
+      <h2>Recent Client Enquiries</h2>
+    </div>
+    <a href="/admin/content.php?type=enquiries">View all enquiries →</a>
+  </div>
+
+  <% if (typeof enquiries !== 'undefined' && enquiries && enquiries.length > 0) { %>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Name</th>
+          <th>Contact</th>
+          <th>Service / Topic</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% enquiries.forEach(enq => { %>
+          <tr>
+            <td><%= formatShortDate(enq.created_at) %></td>
+            <td><strong><%= enq.first_name %> <%= enq.last_name %></strong></td>
+            <td>
+              <%= enq.email %><br>
+              <small style="color: #6b8284;"><%= enq.phone || 'No phone' %></small>
+            </td>
+            <td><%= enq.service || 'General' %></td>
+            <td>
+              <span class="badge badge-<%= enq.status %>"><%= enq.status %></span>
+            </td>
+            <td>
+              <a href="/admin/content.php?type=enquiries" class="btn-secondary" style="font-size: 11px; padding: 4px 10px;">Review</a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } else { %>
+    <p style="color: #6b8284; padding: 20px 0;">No client enquiries received yet.</p>
+  <% } %>
+</section>
+
+<section class="admin-card">
+  <div class="card-heading">
+    <div>
+      <p>Fast Access</p>
+      <h2>Quick Management Links</h2>
+    </div>
+  </div>
+  <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+    <a href="/admin/content.php?type=pages&action=new" class="btn-primary">+ Create New Page</a>
+    <a href="/admin/content.php?type=articles&action=new" class="btn-primary">+ Write New Article</a>
+    <a href="/admin/content.php?type=hero_slides" class="btn-secondary">Edit Hero Slides</a>
+    <a href="/admin/content.php?type=menus" class="btn-secondary">Reorder Navigation Menus</a>
+    <a href="/admin/content.php?type=settings" class="btn-secondary">Update Site Details & Brochure</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

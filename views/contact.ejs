@@ -1,0 +1,104 @@
+<%- include('partials/header') %>
+
+<section class="inner-hero compact"<%- sectionStyle('contact_hero') %>>
+  <div class="container">
+    <p class="eyebrow">CONTACT & CONSULTATIONS</p>
+    <h1>Let’s discuss your<br><em>immigration matter.</em></h1>
+    <p>Get in touch with our casework specialists to discuss your UK visa, settlement or corporate sponsorship requirements.</p>
+  </div>
+</section>
+
+<% if (typeof sent !== 'undefined' && sent) { %>
+  <div class="toast">Thank you! Your enquiry has been received. One of our advisers will be in touch shortly.</div>
+<% } %>
+
+<section class="section">
+  <div class="container contact-grid" id="consultation">
+    <div>
+      <p class="eyebrow">OUR OFFICE</p>
+      <h2>Get in touch with <em>our team.</em></h2>
+      <div class="contact-details">
+        <a href="tel:<%= setting('phone', '+44 20 0000 0000').replace(/\s+/g, '') %>">
+          <b>Telephone</b>
+          <%= setting('phone', '+44 20 0000 0000') %>
+        </a>
+        <a href="mailto:<%= setting('email', 'hello@northstarlegal.co.uk') %>">
+          <b>Email Enquiries</b>
+          <%= setting('email', 'hello@northstarlegal.co.uk') %>
+        </a>
+        <div>
+          <b>Office Address</b>
+          <%- setting('address', '20 Example Street\nLondon, United Kingdom').replace(/\n/g, '<br>') %>
+        </div>
+        <div>
+          <b>Consultation Hours</b>
+          Monday – Friday: 09:00 – 17:30<br>
+          Weekend & Evening slots available upon appointment
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <p class="eyebrow">ONLINE ENQUIRY</p>
+      <h2 style="font-size: 32px; margin-bottom: 25px;">Book a <em>legal consultation</em></h2>
+      
+      <form class="contact-form" action="/submit.php" method="post">
+        <input type="hidden" name="form_type" value="consultation">
+        
+        <label>
+          First Name *
+          <input type="text" name="first_name" required placeholder="e.g. Jane">
+        </label>
+        
+        <label>
+          Last Name *
+          <input type="text" name="last_name" required placeholder="e.g. Smith">
+        </label>
+        
+        <label>
+          Email Address *
+          <input type="email" name="email" required placeholder="e.g. jane@example.com">
+        </label>
+        
+        <label>
+          Phone Number
+          <input type="tel" name="phone" placeholder="e.g. +44 7700 900077">
+        </label>
+        
+        <label class="full">
+          Immigration Area / Service of Interest
+          <select name="service">
+            <option value="">Select a practice area...</option>
+            <% if (typeof services !== 'undefined' && services && services.length > 0) { %>
+              <% services.forEach(s => { %>
+                <option value="<%= s.title %>" <%= (typeof topic !== 'undefined' && topic === s.title) ? 'selected' : '' %>><%= s.title %></option>
+              <% }); %>
+            <% } %>
+            <option value="Personal Immigration" <%= (typeof topic !== 'undefined' && topic === 'Personal Immigration') ? 'selected' : '' %>>Personal Immigration</option>
+            <option value="Business Immigration" <%= (typeof topic !== 'undefined' && topic === 'Business Immigration') ? 'selected' : '' %>>Business Immigration</option>
+            <option value="Other Enquiries" <%= (typeof topic !== 'undefined' && topic === 'Other Enquiries') ? 'selected' : '' %>>Other Enquiries</option>
+          </select>
+        </label>
+        
+        <label class="full">
+          Brief Outline of Your Matter *
+          <textarea name="message" rows="5" required placeholder="Please outline your current status, timeline, and what you are looking to achieve..."></textarea>
+        </label>
+        
+        <label class="full consent">
+          <input type="checkbox" name="consent" value="1" required>
+          I consent to Northstar Legal holding my details to respond to this consultation enquiry in accordance with our Privacy Policy.
+        </label>
+        
+        <div style="grid-column: 1 / -1; margin-top: 10px;">
+          <button type="submit" class="btn">
+            <span>Submit Enquiry</span>
+            <span>→</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

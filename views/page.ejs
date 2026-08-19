@@ -1,0 +1,63 @@
+<%- include('partials/header') %>
+
+<section class="custom-page-hero" <%= page.image_path ? `style="--page-image: url('${page.image_path}')"` : '' %>>
+  <div class="custom-page-overlay"></div>
+  <div class="container">
+    <div class="page-breadcrumbs">
+      <a href="/">Home</a>
+      <% if (page.parent_menu === 'personal_immigration') { %>
+        <span class="breadcrumb-separator">/</span>
+        <span>Personal Immigration</span>
+      <% } else if (page.parent_menu === 'business_immigrations') { %>
+        <span class="breadcrumb-separator">/</span>
+        <span>Business Immigration</span>
+      <% } %>
+      <% if (typeof parentPage !== 'undefined' && parentPage) { %>
+        <span class="breadcrumb-separator">/</span>
+        <a href="/page.php?slug=<%= encodeURIComponent(parentPage.slug) %>"><%= parentPage.title %></a>
+      <% } %>
+      <span class="breadcrumb-separator">/</span>
+      <span><%= page.title %></span>
+    </div>
+    <p class="eyebrow"><%= setting('site_name', 'Northstar Legal') %> Practice</p>
+    <h1><%= page.title %></h1>
+  </div>
+</section>
+
+<article class="custom-page-content section">
+  <div class="container">
+    <div class="rich-content">
+      <%- page.content %>
+
+      <% if (typeof childPages !== 'undefined' && childPages && childPages.length > 0) { %>
+        <div class="page-subpages-nav">
+          <h3>Specific Visa & Application Routes</h3>
+          <div class="subpages-grid">
+            <% childPages.forEach(child => { %>
+              <a href="/page.php?slug=<%= encodeURIComponent(child.slug) %>" class="subpage-card">
+                <span class="nav-icon"><%- renderMenuIcon(child.icon || 'document') %></span>
+                <span><%= child.title %></span>
+              </a>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
+
+      <% if (typeof siblingPages !== 'undefined' && siblingPages && siblingPages.length > 0) { %>
+        <div class="page-subpages-nav">
+          <h3>Related Sub-routes in this Category</h3>
+          <div class="subpages-grid">
+            <% siblingPages.forEach(sib => { %>
+              <a href="/page.php?slug=<%= encodeURIComponent(sib.slug) %>" class="subpage-card">
+                <span class="nav-icon"><%- renderMenuIcon(sib.icon || 'document') %></span>
+                <span><%= sib.title %></span>
+              </a>
+            <% }); %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</article>
+
+<%- include('partials/footer') %>

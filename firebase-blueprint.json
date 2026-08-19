@@ -1,0 +1,159 @@
+{
+  "$schema": "https://raw.githubusercontent.com/firebase/firebase-tools/master/schema/firestore-blueprint.json",
+  "entities": {
+    "Setting": {
+      "collection": "settings",
+      "description": "Global website settings and configurations",
+      "fields": {
+        "key": { "type": "string", "required": true, "description": "Setting key identifier" },
+        "value": { "type": "string", "required": true, "description": "Setting value content" },
+        "updated_at": { "type": "string", "description": "ISO timestamp of last update" }
+      }
+    },
+    "Service": {
+      "collection": "services",
+      "description": "Immigration practice areas and services",
+      "fields": {
+        "title": { "type": "string", "required": true, "description": "Service title" },
+        "tagline": { "type": "string", "required": false, "description": "Short service tagline" },
+        "excerpt": { "type": "string", "required": false, "description": "Short card excerpt" },
+        "content": { "type": "string", "required": false, "description": "Full service details" },
+        "image_path": { "type": "string", "required": false, "description": "Cover image path" },
+        "sort_order": { "type": "number", "required": true, "description": "Sort order" },
+        "is_active": { "type": "number", "required": true, "description": "1 if active, 0 if inactive" },
+        "created_at": { "type": "string", "required": true, "description": "Creation timestamp" }
+      }
+    },
+    "TeamMember": {
+      "collection": "team_members",
+      "description": "Legal team members and advisers",
+      "fields": {
+        "name": { "type": "string", "required": true, "description": "Member name" },
+        "role": { "type": "string", "required": true, "description": "Job title or role" },
+        "bio": { "type": "string", "required": false, "description": "Short biography" },
+        "image_path": { "type": "string", "required": false, "description": "Headshot image path" },
+        "sort_order": { "type": "number", "required": true, "description": "Sort order" },
+        "is_active": { "type": "number", "required": true, "description": "1 if active, 0 if inactive" },
+        "created_at": { "type": "string", "required": true, "description": "Creation timestamp" }
+      }
+    },
+    "Testimonial": {
+      "collection": "testimonials",
+      "description": "Client reviews and feedback",
+      "fields": {
+        "client_name": { "type": "string", "required": true, "description": "Client name" },
+        "client_role": { "type": "string", "required": false, "description": "Client profession or role" },
+        "quote": { "type": "string", "required": true, "description": "Review text" },
+        "image_path": { "type": "string", "required": false, "description": "Client photo path" },
+        "sort_order": { "type": "number", "required": true, "description": "Sort order" },
+        "is_active": { "type": "number", "required": true, "description": "1 if active, 0 if inactive" },
+        "created_at": { "type": "string", "required": true, "description": "Creation timestamp" }
+      }
+    },
+    "Article": {
+      "collection": "articles",
+      "description": "Insights, guides and legal articles",
+      "fields": {
+        "title": { "type": "string", "required": true, "description": "Article title" },
+        "slug": { "type": "string", "required": true, "description": "URL slug" },
+        "category": { "type": "string", "required": false, "description": "Article category" },
+        "excerpt": { "type": "string", "required": false, "description": "Short excerpt" },
+        "body": { "type": "string", "required": true, "description": "Full article body" },
+        "image_path": { "type": "string", "required": false, "description": "Header image path" },
+        "status": { "type": "string", "required": true, "description": "draft or published" },
+        "published_at": { "type": "string", "required": true, "description": "Publication timestamp" },
+        "created_at": { "type": "string", "required": true, "description": "Creation timestamp" }
+      }
+    },
+    "Enquiry": {
+      "collection": "enquiries",
+      "description": "Contact form and consultation enquiries",
+      "fields": {
+        "first_name": { "type": "string", "required": true, "description": "First name" },
+        "last_name": { "type": "string", "required": true, "description": "Last name" },
+        "email": { "type": "string", "required": true, "description": "Contact email" },
+        "phone": { "type": "string", "required": false, "description": "Phone number" },
+        "service": { "type": "string", "required": false, "description": "Service of interest" },
+        "message": { "type": "string", "required": true, "description": "Consultation details" },
+        "consent": { "type": "number", "required": true, "description": "Consent confirmation (1 or 0)" },
+        "status": { "type": "string", "required": true, "description": "new, contacted, or closed" },
+        "created_at": { "type": "string", "required": true, "description": "Submission timestamp" }
+      }
+    },
+    "Page": {
+      "collection": "pages",
+      "description": "Custom rich content pages",
+      "fields": {
+        "title": { "type": "string", "required": true, "description": "Page heading" },
+        "slug": { "type": "string", "required": true, "description": "URL slug" },
+        "content": { "type": "string", "required": true, "description": "HTML or text content" },
+        "image_path": { "type": "string", "required": false, "description": "Banner image path" },
+        "parent_menu": { "type": "string", "required": false, "description": "Parent menu identifier (e.g. personal_immigration, business_immigrations, or none)" },
+        "icon": { "type": "string", "required": false, "description": "Icon name for menu display" },
+        "sort_order": { "type": "number", "required": true, "description": "Sort order" },
+        "status": { "type": "string", "required": true, "description": "draft or published" },
+        "created_at": { "type": "string", "required": true, "description": "Creation timestamp" }
+      }
+    },
+    "MenuItem": {
+      "collection": "menu_items",
+      "description": "Header navigation menu items",
+      "fields": {
+        "title": { "type": "string", "required": true, "description": "Menu title" },
+        "url": { "type": "string", "required": true, "description": "Destination link" },
+        "icon": { "type": "string", "required": true, "description": "Icon key (home, list, database, contact, gift, etc.)" },
+        "parent_key": { "type": "string", "required": false, "description": "Parent menu key if submenu" },
+        "is_dropdown": { "type": "number", "required": false, "description": "1 if has dropdown submenu" },
+        "sort_order": { "type": "number", "required": true, "description": "Sort order" },
+        "is_active": { "type": "number", "required": true, "description": "1 if active, 0 if inactive" }
+      }
+    },
+    "HeroSlide": {
+      "collection": "hero_slides",
+      "description": "Homepage slider content",
+      "fields": {
+        "eyebrow": { "type": "string", "required": false, "description": "Small label" },
+        "title": { "type": "string", "required": true, "description": "Headline" },
+        "text": { "type": "string", "required": false, "description": "Supporting paragraph" },
+        "button_text": { "type": "string", "required": false, "description": "Call to action label" },
+        "button_url": { "type": "string", "required": false, "description": "Destination link" },
+        "image_path": { "type": "string", "required": false, "description": "Slide background image" },
+        "sort_order": { "type": "number", "required": true, "description": "Display order" },
+        "is_active": { "type": "number", "required": true, "description": "1 if active, 0 if inactive" }
+      }
+    },
+    "SectionBackground": {
+      "collection": "section_backgrounds",
+      "description": "Section background image overrides",
+      "fields": {
+        "label": { "type": "string", "required": true, "description": "Section name" },
+        "section_key": { "type": "string", "required": true, "description": "Unique section key" },
+        "image_path": { "type": "string", "required": false, "description": "Background image path" },
+        "sort_order": { "type": "number", "required": true, "description": "Display order" },
+        "is_active": { "type": "number", "required": true, "description": "1 if active, 0 if inactive" }
+      }
+    },
+    "ClientLogo": {
+      "collection": "clients",
+      "description": "Client logos for homepage marquee carousel",
+      "fields": {
+        "name": { "type": "string", "required": true, "description": "Client or company name" },
+        "website_url": { "type": "string", "required": false, "description": "Optional website link" },
+        "image_path": { "type": "string", "required": false, "description": "Logo image file path" },
+        "sort_order": { "type": "number", "required": true, "description": "Display order" },
+        "is_active": { "type": "number", "required": true, "description": "1 if active, 0 if inactive" }
+      }
+    },
+    "HeroDropdownOption": {
+      "collection": "hero_dropdown",
+      "description": "Hero section quick search dropdown options linked to site pages",
+      "fields": {
+        "title": { "type": "string", "required": true, "description": "Option label displayed in dropdown" },
+        "page_id": { "type": "number", "required": false, "description": "ID of the target site page" },
+        "target_url": { "type": "string", "required": false, "description": "Optional custom URL override" },
+        "sort_order": { "type": "number", "required": true, "description": "Display order in dropdown" },
+        "is_active": { "type": "number", "required": true, "description": "1 if active, 0 if inactive" }
+      }
+    }
+  }
+}

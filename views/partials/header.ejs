@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function() {
+      try {
+        var rawFetch = window.fetch ? window.fetch.bind(window) : null;
+        var currentFetch = rawFetch;
+        var defineSafeProperty = function(target) {
+          if (!target) return;
+          try {
+            var desc = Object.getOwnPropertyDescriptor(target, 'fetch');
+            if (!desc || desc.configurable) {
+              Object.defineProperty(target, 'fetch', {
+                get: function() { return currentFetch; },
+                set: function(val) { currentFetch = val; },
+                configurable: true,
+                enumerable: true
+              });
+            }
+          } catch (e) {}
+        };
+        defineSafeProperty(window);
+        if (typeof Window !== 'undefined' && Window.prototype) {
+          defineSafeProperty(Window.prototype);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= typeof page_title !== 'undefined' && page_title ? page_title + ' | ' + setting('site_name', 'Northstar Legal') : setting('site_name', 'Northstar Legal') %></title>
+  <meta name="description" content="<%= setting('meta_description', 'Straightforward immigration advice and representation for individuals, families and businesses.') %>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/app.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav-wrap">
+    <a class="brand" href="/" id="brand-link">
+      <span class="brand-mark"><%= (setting('site_name', 'Northstar Legal') || 'N').trim().charAt(0) %></span>
+      <span><%= setting('site_name', 'Northstar Legal') %></span>
+    </a>
+
+    <button class="menu-toggle" aria-label="Toggle Navigation Menu" id="menu-toggle-btn">☰</button>
+
+    <nav class="site-nav" id="site-nav">
+      <% if (typeof navTree !== 'undefined' && navTree && navTree.length > 0) { %>
+        <% navTree.forEach(node => { %>
+          <% const hasSubmenu = node.submenus && node.submenus.length > 0; %>
+          <% if (hasSubmenu) { %>
+            <div class="nav-dropdown" id="nav-item-<%= node.item.id %>">
+              <a href="<%= node.item.url || '#' %>" class="nav-link dropdown-toggle <%= typeof current !== 'undefined' && current === node.item.url ? 'active' : '' %>">
+                <%- renderMenuIcon(node.item.icon) %>
+                <span><%= node.item.title %></span>
+                <span class="dropdown-caret">▾</span>
+              </a>
+              <div class="dropdown-menu">
+                <% node.submenus.forEach(sub => { %>
+                  <% const hasChildren = sub.children && sub.children.length > 0; %>
+                  <% if (hasChildren) { %>
+                    <div class="dropdown-submenu">
+                      <div class="dropdown-submenu-row">
+                        <a href="/page.php?slug=<%= encodeURIComponent(sub.page.slug) %>" class="dropdown-item submenu-link <%= typeof current_slug !== 'undefined' && current_slug === sub.page.slug ? 'active' : '' %>">
+                          <%- renderMenuIcon(sub.page.icon || 'document') %>
+                          <span class="item-title"><%= sub.page.title %></span>
+                        </a>
+                        <span class="submenu-arrow-wrap">▸</span>
+                      </div>
+                      <div class="dropdown-flyout">
+                        <% sub.children.forEach(child => { %>
+                          <a href="/page.php?slug=<%= encodeURIComponent(child.slug) %>" class="dropdown-item <%= typeof current_slug !== 'undefined' && current_slug === child.slug ? 'active' : '' %>">
+                            <%- renderMenuIcon(child.icon || 'file') %>
+                            <span class="item-title"><%= child.title %></span>
+                          </a>
+                        <% }); %>
+                      </div>
+                    </div>
+                  <% } else { %>
+                    <a href="/page.php?slug=<%= encodeURIComponent(sub.page.slug) %>" class="dropdown-item <%= typeof current_slug !== 'undefined' && current_slug === sub.page.slug ? 'active' : '' %>">
+                      <%- renderMenuIcon(sub.page.icon || 'document') %>
+                      <span class="item-title"><%= sub.page.title %></span>
+                    </a>
+                  <% } %>
+                <% }); %>
+              </div>
+            </div>
+          <% } else { %>
+            <a href="<%= node.item.url %>" class="nav-link <%= (typeof current !== 'undefined' && (current === node.item.url || current === node.item.title.toLowerCase().replace(/\s+/g, ''))) ? 'active' : '' %>" id="nav-item-<%= node.item.id %>">
+              <%- renderMenuIcon(node.item.icon) %>
+              <span><%= node.item.title %></span>
+            </a>
+          <% } %>
+        <% }); %>
+      <% } else { %>
+        <a href="/" class="nav-link <%= typeof current !== 'undefined' && current === 'index' ? 'active' : '' %>">Home</a>
+        <a href="/about.php" class="nav-link <%= typeof current !== 'undefined' && current === 'about' ? 'active' : '' %>">About Us</a>
+        <a href="/services.php" class="nav-link <%= typeof current !== 'undefined' && current === 'services' ? 'active' : '' %>">Services</a>
+        <a href="/articles.php" class="nav-link <%= typeof current !== 'undefined' && current === 'articles' ? 'active' : '' %>">Insights</a>
+        <a href="/contact.php" class="nav-link <%= typeof current !== 'undefined' && current === 'contact' ? 'active' : '' %>">Contact Us</a>
+      <% } %>
+    </nav>
+  </div>
+</header>
+
+<main>

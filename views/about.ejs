@@ -1,0 +1,74 @@
+<%- include('partials/header') %>
+
+<section class="inner-hero"<%- sectionStyle('about_hero') %>>
+  <div class="container">
+    <p class="eyebrow">ABOUT NORTHSTAR LEGAL</p>
+    <h1>Clear guidance.<br><em>Dedicated representation.</em></h1>
+    <p><%= setting('about_text', 'We are dedicated to making immigration law understandable, accessible, and transparent. We work alongside individuals, families, and businesses to help them achieve their goals in the UK.') %></p>
+  </div>
+</section>
+
+<section class="section"<%- sectionStyle('about_story') %>>
+  <div class="container story-grid">
+    <div class="image-panel">
+      <span>Excellence in Legal Practice</span>
+    </div>
+    <div>
+      <p class="eyebrow">OUR PHILOSOPHY</p>
+      <h2><%- setting('about_heading', 'Committed to your <em>peace of mind.</em>') %></h2>
+      <p class="lead"><%= setting('about_subtext', 'We believe that navigating immigration law should be supported with honest expectations, direct communication, and total transparency from day one.') %></p>
+      
+      <div class="values">
+        <div>
+          <b>01 / DEDICATION</b>
+          <h3>Client-first focus</h3>
+          <p>Every case is personally handled with care, attention to detail, and direct access to your casework specialist.</p>
+        </div>
+        <div>
+          <b>02 / ACCURACY</b>
+          <h3>Rigorous compliance</h3>
+          <p>We review every supporting piece of evidence to ensure total compliance with latest Home Office rules.</p>
+        </div>
+        <div>
+          <b>03 / CLARITY</b>
+          <h3>Fixed-fee transparency</h3>
+          <p>Clear milestones and straightforward fee agreements with zero hidden costs or surprise billings.</p>
+        </div>
+        <div>
+          <b>04 / PROACTIVITY</b>
+          <h3>Fast casework</h3>
+          <p>We proactively manage deadlines, biometric appointments, and submission timeframes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<% if (typeof team !== 'undefined' && team && team.length > 0) { %>
+  <section class="section team-section"<%- sectionStyle('about_team') %>>
+    <div class="container">
+      <div class="section-heading">
+        <p class="eyebrow">MEET OUR SPECIALISTS</p>
+        <h2>Our <em>advisory team</em></h2>
+      </div>
+      <div class="team-grid">
+        <% team.forEach(member => { %>
+          <div class="team-card">
+            <% if (member.image_path) { %>
+              <img src="<%= member.image_path %>" alt="<%= member.name %>">
+            <% } else { %>
+              <div class="team-photo">
+                <span><%= member.name.charAt(0) %></span>
+              </div>
+            <% } %>
+            <h3><%= member.name %></h3>
+            <p><%= member.role %></p>
+            <small><%= member.bio %></small>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+<% } %>
+
+<%- include('partials/footer') %>

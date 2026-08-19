@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Public read for site content, restricted write
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /team_members/{memberId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /articles/{articleId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /enquiries/{enquiryId} {
+      allow create: if true;
+      allow read, update, delete: if true;
+    }
+    match /pages/{pageId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /menu_items/{menuId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /hero_slides/{slideId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /section_backgrounds/{bgId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /clients/{clientId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /hero_dropdown/{dropdownId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /admins/{adminId} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function() {
+      try {
+        var rawFetch = window.fetch ? window.fetch.bind(window) : null;
+        var currentFetch = rawFetch;
+        var defineSafeProperty = function(target) {
+          if (!target) return;
+          try {
+            var desc = Object.getOwnPropertyDescriptor(target, 'fetch');
+            if (!desc || desc.configurable) {
+              Object.defineProperty(target, 'fetch', {
+                get: function() { return currentFetch; },
+                set: function(val) { currentFetch = val; },
+                configurable: true,
+                enumerable: true
+              });
+            }
+          } catch (e) {}
+        };
+        defineSafeProperty(window);
+        if (typeof Window !== 'undefined' && Window.prototype) {
+          defineSafeProperty(Window.prototype);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login | <%= setting('site_name', 'Northstar Legal') %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/admin.css">
+</head>
+<body>
+
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-mark"><%= (setting('site_name', 'Northstar Legal') || 'N').trim().charAt(0) %></div>
+      <h1>Admin Portal</h1>
+      <p><%= setting('site_name', 'Northstar Legal') %> Management</p>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="login-error"><%= error %></div>
+    <% } %>
+
+    <form class="login-form" method="post" action="/admin/login.php">
+      <label>
+        Email address
+        <input type="email" name="email" value="<%= typeof email !== 'undefined' && email ? email : 'admin@northstarlegal.co.uk' %>" required autofocus>
+      </label>
+
+      <label>
+        Password
+        <input type="password" name="password" value="ChangeMe123!" required>
+      </label>
+
+      <button type="submit">Sign in to control center →</button>
+    </form>
+
+    <div class="login-footer-hint">
+      <p style="margin: 0 0 4px; font-weight: 600;">Default Credentials:</p>
+      <code>admin@northstarlegal.co.uk</code> / <code>ChangeMe123!</code>
+      <div style="margin-top: 12px;">
+        <a href="/" style="color: #927541; text-decoration: underline;">← Return to public website</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
