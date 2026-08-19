@@ -351,22 +351,39 @@ a {
 }
 
 .form-actions button,
-.btn-primary {
+.btn-primary,
+a.btn-primary,
+button.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: var(--admin-ink);
-  color: #fff;
+  color: #ffffff !important;
   border: 1px solid var(--admin-ink);
-  padding: 12px 24px;
-  border-radius: 4px;
+  padding: 11px 22px;
+  border-radius: 5px;
   font-weight: 700;
   font-size: 13px;
+  text-decoration: none !important;
   cursor: pointer;
-  transition: 0.15s;
+  transition: all 0.15s ease;
 }
 
 .form-actions button:hover,
-.btn-primary:hover {
+.btn-primary:hover,
+a.btn-primary:hover,
+button.btn-primary:hover {
   background: #173d40;
   border-color: #173d40;
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.form-actions button:visited,
+.btn-primary:visited,
+a.btn-primary:visited {
+  color: #ffffff !important;
 }
 
 .btn-secondary {
