@@ -8,6 +8,97 @@
     </div>
   </div>
   <form class="editor-form" method="post" action="/admin/content.php?type=settings" enctype="multipart/form-data">
+    
+    <!-- 1. Logo & Branding Upload Section -->
+    <div style="grid-column: 1/-1; margin: 0 0 10px; padding-bottom: 24px; border-bottom: 2px solid #e2ddd3;">
+      <h3 style="font-family: var(--serif); font-size: 22px; margin: 0 0 6px; color: #102b2d;">Website Logo & Branding</h3>
+      <p style="font-size: 13px; color: #627778; margin: 0 0 16px;">Upload a custom logo image for the website header, footer, and admin control center.</p>
+      
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start; background: #faf8f5; border: 1px solid var(--admin-border); border-radius: 6px; padding: 20px 22px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #435b5d; margin-bottom: 8px;">
+            Upload New Logo File (.svg, .png, .jpg, .webp)
+            <div style="margin-top: 6px; padding: 10px 14px; background: #efece4; border-radius: 5px; border-left: 3px solid var(--admin-gold); font-size: 12px; line-height: 1.5; color: #2e4446; text-transform: none; font-weight: normal;">
+              <strong>📏 Recommended Logo Dimensions:</strong><br>
+              • <strong>Horizontal Logo:</strong> Width: <strong>250px – 400px</strong> | Height: <strong>50px – 75px</strong><br>
+              • <strong>Square / Circular Icon Badge:</strong> <strong>60px × 60px</strong> up to <strong>120px × 120px</strong><br>
+              • <em>Transparent PNG or SVG vector format is recommended for crisp clarity. Max file size: 4 MB.</em>
+            </div>
+            <input type="file" name="site_logo" accept="image/svg+xml,image/png,image/jpeg,image/webp" style="margin-top: 12px; width: 100%;">
+          </label>
+        </div>
+        
+        <div>
+          <span style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6b8284; margin-bottom: 8px;">Current Active Logo:</span>
+          <% if (settings['site_logo']) { %>
+            <div style="background: #ffffff; border: 1px solid #d5cbba; border-radius: 6px; padding: 14px 18px; display: inline-flex; align-items: center; gap: 14px; max-width: 100%;">
+              <img src="<%= settings['site_logo'] %>" alt="Site Logo" style="max-height: 48px; max-width: 180px; object-fit: contain; display: block;">
+              <span style="font-weight: 700; font-size: 13px; color: #102b2d;"><%= settings['site_name'] || 'COMPASS LEGAL' %></span>
+            </div>
+            <label style="display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; text-transform: none; font-weight: 600; color: #b91c1c; cursor: pointer;">
+              <input type="checkbox" name="remove_site_logo" value="1">
+              Remove custom logo and revert to default monogram
+            </label>
+          <% } else { %>
+            <div style="display: flex; align-items: center; gap: 10px; color: #102b2d; font-weight: 700; font-size: 15px; padding: 10px 0;">
+              <span style="width: 34px; height: 34px; border: 1px solid #102b2d; display: grid; place-items: center; font-family: var(--serif);"><%= (settings['site_name'] || 'C').trim().charAt(0) %></span>
+              <span><%= settings['site_name'] || 'COMPASS LEGAL' %> (Default Monogram)</span>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Hero Section Overlay Background Banner -->
+    <div style="grid-column: 1/-1; margin: 20px 0 10px; padding-top: 15px; padding-bottom: 24px; border-bottom: 2px solid #e2ddd3;">
+      <h3 style="font-family: var(--serif); font-size: 22px; margin: 0 0 6px; color: #102b2d;">Hero Section Overlay Background Banner</h3>
+      <p style="font-size: 13px; color: #627778; margin: 0 0 16px;">Upload a custom banner image that overlays across the top hero section on the homepage and adjust its opacity.</p>
+      
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start; background: #faf8f5; border: 1px solid var(--admin-border); border-radius: 6px; padding: 20px 22px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #435b5d; margin-bottom: 8px;">
+            Upload Hero Overlay Image (.jpg, .png, .webp)
+            <div style="margin-top: 6px; padding: 10px 14px; background: #efece4; border-radius: 5px; border-left: 3px solid var(--admin-gold); font-size: 12px; line-height: 1.5; color: #2e4446; text-transform: none; font-weight: normal;">
+              <strong>📏 Recommended Hero Banner Dimensions:</strong><br>
+              • <strong>Width:</strong> <strong>1920px – 2560px</strong> (Full HD / 2K Widescreen)<br>
+              • <strong>Height:</strong> <strong>650px – 850px</strong> (Aspect Ratio: <strong>16:9</strong> or <strong>21:9</strong>)<br>
+              • <em>High-resolution landscape banner with transparent or dark background. Max file size: 6 MB.</em>
+            </div>
+            <input type="file" name="hero_overlay_image" accept="image/jpeg,image/png,image/webp,image/svg+xml" style="margin-top: 12px; width: 100%;">
+          </label>
+
+          <!-- Opacity Slider Control -->
+          <div style="margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--admin-border);">
+            <label style="display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #435b5d; margin-bottom: 6px;">
+              Hero Overlay Opacity: <span id="hero-opacity-display" style="color: var(--admin-gold); font-size: 14px; font-weight: 800;"><%= settings['hero_overlay_opacity'] || '85' %>%</span>
+            </label>
+            <div style="display: flex; align-items: center; gap: 14px; margin-top: 6px;">
+              <span style="font-size: 11px; color: #6b8284; font-weight: 600;">10% (Lighter)</span>
+              <input type="range" name="settings[hero_overlay_opacity]" min="10" max="100" step="5" value="<%= settings['hero_overlay_opacity'] || '85' %>" style="flex: 1; accent-color: #102b2d; cursor: pointer;" oninput="document.getElementById('hero-opacity-display').innerText = this.value + '%'">
+              <span style="font-size: 11px; color: #6b8284; font-weight: 600;">100% (Darker)</span>
+            </div>
+            <small class="form-hint" style="display: block; margin-top: 4px;">Adjust how transparent or prominent the overlay graphic appears over the hero background.</small>
+          </div>
+        </div>
+        
+        <div>
+          <span style="display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6b8284; margin-bottom: 8px;">Current Hero Overlay Image:</span>
+          <% if (settings['hero_overlay_image']) { %>
+            <div style="border: 1px solid #d5cbba; border-radius: 6px; overflow: hidden; max-width: 100%; background: #0c292b;">
+              <img src="<%= settings['hero_overlay_image'] %>" alt="Hero Overlay Banner" style="width: 100%; max-height: 120px; object-fit: cover; display: block;">
+            </div>
+            <label style="display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; text-transform: none; font-weight: 600; color: #b91c1c; cursor: pointer;">
+              <input type="checkbox" name="remove_hero_overlay_image" value="1">
+              Remove overlay image
+            </label>
+          <% } else { %>
+            <p style="color: #6b8284; margin: 0; font-size: 13px; padding: 10px 0;">No hero overlay image configured (Using default dark gradient overlay).</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. General Site Details & Contact Settings -->
     <% setting_fields.forEach(field => { %>
       <label class="<%= ['address','meta_description','hero_title','hero_text','intro_text','about_text','footer_about'].includes(field.key) ? 'wide' : '' %>">
         <%= field.label %>
@@ -19,6 +110,7 @@
       </label>
     <% }); %>
 
+    <!-- 4. Practice Brochure & Footer Download -->
     <div style="grid-column: 1/-1; margin: 30px 0 10px; padding-top: 25px; border-top: 2px solid #e2ddd3;">
       <h3 style="font-family: var(--serif); font-size: 22px; margin: 0 0 6px; color: #102b2d;">Practice Brochure & Footer Download</h3>
       <p style="font-size: 13px; color: #627778; margin: 0 0 20px;">Upload a PDF or document that clients can download directly from the website footer.</p>

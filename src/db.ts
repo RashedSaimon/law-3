@@ -6,7 +6,7 @@ import {
   deleteDoc,
   writeBatch
 } from 'firebase/firestore';
-import { getFirebaseDb, testConnection } from './firebase';
+import { getFirebaseDb, testConnection, ensureAuth } from './firebase';
 
 export interface Setting {
   setting_key: string;
@@ -161,12 +161,15 @@ export interface Admin {
 
 class FirestoreDB {
   settings: Map<string, string> = new Map([
-    ['site_name', 'NORTHSTAR LEGAL'],
-    ['company_legal', 'Northstar Legal Ltd.'],
-    ['phone', '+44 20 0000 0000'],
-    ['email', 'hello@northstarlegal.co.uk'],
-    ['address', '20 Example Street\nLondon, United Kingdom'],
-    ['meta_description', 'Straightforward immigration advice and representation for individuals, families and businesses.'],
+    ['site_name', 'COMPASS LEGAL'],
+    ['site_logo', '/uploads/compass-legal-logo.svg'],
+    ['hero_overlay_image', '/uploads/hero-overlay-banner.jpg'],
+    ['hero_overlay_opacity', '85'],
+    ['company_legal', 'Compass Legal Ltd.'],
+    ['phone', '07412 679132'],
+    ['email', 'info@compasslinklegal.com'],
+    ['address', 'East London Business Centre (GF), Unit G08, 93-101 Greenfield Rd\nLondon, E1 1EJ'],
+    ['meta_description', 'Your Legal Journey, Guided with Care and Clarity. Straightforward immigration advice and representation for individuals, families and businesses.'],
     ['hero_title', "From paperwork to possibilities.\nWe've got you covered."],
     ['hero_text', 'Clear advice, experienced guidance and a plan tailored around you.'],
     ['hero_dropdown_placeholder', 'What can we help you with?'],
@@ -1008,79 +1011,97 @@ class FirestoreDB {
   async init(): Promise<void> {
     if (this.initialized) return;
     try {
-      await testConnection();
+      await ensureAuth();
+      const isConnected = await testConnection();
       const firestore = getFirebaseDb();
 
-      // Load Settings
-      const settingsSnap = await getDocs(collection(firestore, 'settings'));
-      if (settingsSnap.empty) {
-        // Seed default settings
-        const batch = writeBatch(firestore);
-        for (const [key, value] of this.settings.entries()) {
-          const docRef = doc(firestore, 'settings', key);
-          batch.set(docRef, { key, value, updated_at: new Date().toISOString() });
+      if (isConnected) {
+        // Load Settings
+        try {
+          const settingsSnap = await getDocs(collection(firestore, 'settings'));
+          if (settingsSnap.empty) {
+            // Seed default settings
+            const batch = writeBatch(firestore);
+            for (const [key, value] of this.settings.entries()) {
+              const docRef = doc(firestore, 'settings', key);
+              batch.set(docRef, { key, value, updated_at: new Date().toISOString() });
+            }
+            await batch.commit();
+          } else {
+            this.settings.clear();
+            settingsSnap.forEach(d => {
+              const data = d.data();
+              if (data && data.key && data.value !== undefined) {
+                this.settings.set(data.key, data.value);
+              }
+            });
+            // If site_logo was contaminated by earlier hero overlay upload bug, restore clean logo
+            const currentSiteLogo = this.settings.get('site_logo');
+            if (currentSiteLogo && currentSiteLogo.includes('hero-overlay')) {
+              this.settings.set('site_logo', '/uploads/compass-legal-logo.svg');
+              const docRef = doc(firestore, 'settings', 'site_logo');
+              setDoc(docRef, { key: 'site_logo', value: '/uploads/compass-legal-logo.svg', updated_at: new Date().toISOString() }).catch(() => {});
+            }
+          }
+        } catch (settingsErr) {
+          console.warn('Could not sync remote settings, using local seed settings:', settingsErr);
         }
-        await batch.commit();
-      } else {
-        this.settings.clear();
-        settingsSnap.forEach(d => {
-          const data = d.data();
-          if (data && data.key && data.value !== undefined) {
-            this.settings.set(data.key, data.value);
+
+        // Sync Table Helper
+        const syncCollection = async <T extends { id: number }>(
+          collName: string,
+          initialList: T[],
+          setter: (list: T[]) => void
+        ) => {
+          try {
+            const snap = await getDocs(collection(firestore, collName));
+            if (snap.empty) {
+              const batch = writeBatch(firestore);
+              for (const item of initialList) {
+                const docRef = doc(firestore, collName, String(item.id));
+                batch.set(docRef, item);
+              }
+              await batch.commit();
+            } else {
+              const items: T[] = [];
+              snap.forEach(d => {
+                items.push(d.data() as T);
+              });
+              setter(items);
+            }
+          } catch (collErr) {
+            console.warn(`Could not sync remote collection ${collName}, using local default dataset.`);
+          }
+        };
+
+        await syncCollection('menu_items', this.menuItems, l => { this.menuItems = l; });
+        await syncCollection('services', this.services, l => { this.services = l; });
+        await syncCollection('team_members', this.teamMembers, l => { this.teamMembers = l; });
+        await syncCollection('testimonials', this.testimonials, l => { this.testimonials = l; });
+        await syncCollection('articles', this.articles, l => { this.articles = l; });
+        await syncCollection('enquiries', this.enquiries, l => { this.enquiries = l; });
+        await syncCollection('pages', this.pages, l => { this.pages = l; });
+        await syncCollection('hero_slides', this.heroSlides, l => { this.heroSlides = l; });
+        await syncCollection('section_backgrounds', this.sectionBackgrounds, l => { this.sectionBackgrounds = l; });
+        await syncCollection('clients', this.clients, l => { this.clients = l; });
+        await syncCollection('hero_dropdown', this.heroDropdownOptions, l => { this.heroDropdownOptions = l; });
+        await syncCollection('admins', this.admins, l => {
+          if (!l || l.length === 0) {
+            // Keep initial
+          } else {
+            const hasAdmin = l.some(a => a.email.toLowerCase() === 'admin@example.com');
+            if (!hasAdmin) {
+              l.push({
+                id: 1,
+                name: 'Site Administrator',
+                email: 'admin@example.com',
+                password: 'ChangeMe123!'
+              });
+            }
+            this.admins = l;
           }
         });
       }
-
-      // Sync Table Helper
-      const syncCollection = async <T extends { id: number }>(
-        collName: string,
-        initialList: T[],
-        setter: (list: T[]) => void
-      ) => {
-        const snap = await getDocs(collection(firestore, collName));
-        if (snap.empty) {
-          const batch = writeBatch(firestore);
-          for (const item of initialList) {
-            const docRef = doc(firestore, collName, String(item.id));
-            batch.set(docRef, item);
-          }
-          await batch.commit();
-        } else {
-          const items: T[] = [];
-          snap.forEach(d => {
-            items.push(d.data() as T);
-          });
-          setter(items);
-        }
-      };
-
-      await syncCollection('menu_items', this.menuItems, l => { this.menuItems = l; });
-      await syncCollection('services', this.services, l => { this.services = l; });
-      await syncCollection('team_members', this.teamMembers, l => { this.teamMembers = l; });
-      await syncCollection('testimonials', this.testimonials, l => { this.testimonials = l; });
-      await syncCollection('articles', this.articles, l => { this.articles = l; });
-      await syncCollection('enquiries', this.enquiries, l => { this.enquiries = l; });
-      await syncCollection('pages', this.pages, l => { this.pages = l; });
-      await syncCollection('hero_slides', this.heroSlides, l => { this.heroSlides = l; });
-      await syncCollection('section_backgrounds', this.sectionBackgrounds, l => { this.sectionBackgrounds = l; });
-      await syncCollection('clients', this.clients, l => { this.clients = l; });
-      await syncCollection('hero_dropdown', this.heroDropdownOptions, l => { this.heroDropdownOptions = l; });
-      await syncCollection('admins', this.admins, l => {
-        if (!l || l.length === 0) {
-          // Keep initial
-        } else {
-          const hasAdmin = l.some(a => a.email.toLowerCase() === 'admin@example.com');
-          if (!hasAdmin) {
-            l.push({
-              id: 1,
-              name: 'Site Administrator',
-              email: 'admin@example.com',
-              password: 'ChangeMe123!'
-            });
-          }
-          this.admins = l;
-        }
-      });
 
       // Determine nextId
       const allIds = [
@@ -1101,9 +1122,10 @@ class FirestoreDB {
       }
 
       this.initialized = true;
-      console.log('Firebase Firestore initialized and synchronized successfully.');
+      console.log('Database initialized successfully.');
     } catch (err) {
-      console.error('Failed to initialize Firestore, running with in-memory persistence:', err);
+      console.warn('Initialized database with local fallback store:', err);
+      this.initialized = true;
     }
   }
 
@@ -1118,7 +1140,7 @@ class FirestoreDB {
       const docRef = doc(firestore, 'settings', key);
       await setDoc(docRef, { key, value, updated_at: new Date().toISOString() });
     } catch (err) {
-      console.error('Error updating setting in Firestore:', err);
+      // Gracefully fall back to memory
     }
   }
 
@@ -1246,7 +1268,7 @@ class FirestoreDB {
       const docRef = doc(firestore, collName, String(newItem.id));
       await setDoc(docRef, newItem);
     } catch (err) {
-      console.error(`Error writing to Firestore ${table}:`, err);
+      // Gracefully continue with memory store
     }
 
     return newItem;
@@ -1266,7 +1288,7 @@ class FirestoreDB {
       const docRef = doc(firestore, collName, String(list[index].id || id));
       await setDoc(docRef, list[index]);
     } catch (err) {
-      console.error(`Error updating Firestore ${table}:`, err);
+      // Gracefully continue with memory store
     }
 
     return list[index];
@@ -1297,7 +1319,7 @@ class FirestoreDB {
       const docRef = doc(firestore, collName, String(deletedItem.id || id));
       await deleteDoc(docRef);
     } catch (err) {
-      console.error(`Error deleting from Firestore ${table}:`, err);
+      // Gracefully continue with memory store
     }
 
     return true;

@@ -44,7 +44,15 @@
 <footer class="site-footer section-image"<%- sectionStyle('site_footer') %>>
   <div class="container footer-grid">
     <div>
-      <a class="brand brand-footer" href="/"><span class="brand-mark"><%= (setting('site_name', 'Northstar Legal') || 'N').trim().charAt(0) %></span><span><%= setting('site_name', 'Northstar Legal') %></span></a>
+      <a class="brand brand-footer" href="/">
+        <% if (setting('site_logo')) { %>
+          <img src="<%= setting('site_logo').replace('compass-legal-logo.svg', 'compass-legal-logo-light.svg') %>" alt="<%= setting('site_name', 'COMPASS LEGAL') %>" class="footer-logo-img">
+          <span class="brand-text"><%= setting('site_name', 'COMPASS LEGAL') %></span>
+        <% } else { %>
+          <span class="brand-mark"><%= (setting('site_name', 'COMPASS LEGAL') || 'C').trim().charAt(0) %></span>
+          <span class="brand-text"><%= setting('site_name', 'COMPASS LEGAL') %></span>
+        <% } %>
+      </a>
       <p><%= setting('footer_about', 'Practical immigration advice, handled with clarity and care.') %></p>
       <small>© <%= new Date().getFullYear() %> <%= setting('company_legal', 'Northstar Legal Ltd.') %>. All rights reserved.</small>
     </div>

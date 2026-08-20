@@ -4,17 +4,30 @@ import cookieParser from 'cookie-parser';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { db, slugify, formatDate, formatShortDate, renderMenuIcon } from './src/db';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = 3000;
 
 app.set('trust proxy', 1);
 
-// Ensure public/uploads exists
-const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Ensure uploads directory exists (with serverless /tmp fallback)
+let uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (e) {
+  uploadsDir = path.join('/tmp', 'uploads');
+  try {
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+  } catch (err) {}
 }
 
 // Multer storage configuration
@@ -33,9 +46,16 @@ const upload = multer({
   limits: { fileSize: 4 * 1024 * 1024 }
 });
 
-// Configure EJS view engine
+// Configure EJS view engine with flexible path resolution for Netlify serverless
+const candidateViewsPaths = [
+  path.join(process.cwd(), 'views'),
+  path.resolve(__dirname, 'views'),
+  path.resolve(__dirname, '../views'),
+  path.resolve(__dirname, '../../views')
+];
+const viewsDir = candidateViewsPaths.find(p => fs.existsSync(p)) || path.join(process.cwd(), 'views');
 app.set('view engine', 'ejs');
-app.set('views', path.join(process.cwd(), 'views'));
+app.set('views', viewsDir);
 
 // Middlewares
 app.use(express.urlencoded({ extended: true }));
@@ -54,8 +74,15 @@ app.use(session({
 }));
 
 // Static files
-app.use(express.static(path.join(process.cwd(), 'public')));
-app.use('/assets', express.static(path.join(process.cwd(), 'public', 'assets')));
+const publicDir = [
+  path.join(process.cwd(), 'public'),
+  path.resolve(__dirname, 'public'),
+  path.resolve(__dirname, '../public'),
+  path.resolve(__dirname, '../../public')
+].find(p => fs.existsSync(p)) || path.join(process.cwd(), 'public');
+
+app.use(express.static(publicDir));
+app.use('/assets', express.static(path.join(publicDir, 'assets')));
 app.use('/uploads', express.static(uploadsDir));
 
 // Global template helpers
@@ -529,13 +556,12 @@ const handleAdminContentPost = async (req: Request, res: Response) => {
   const action = req.body.action || (req.query.action as string) || '';
 
   const files = (req.files as Express.Multer.File[]) || (req.file ? [req.file] : []);
-  const getUploadedFile = (fieldName?: string) => {
+  const getUploadedFile = (fieldName?: string): Express.Multer.File | null => {
     if (!files || files.length === 0) return null;
     if (fieldName) {
-      const match = files.find(f => f.fieldname === fieldName);
-      if (match) return match;
+      return files.find(f => f.fieldname === fieldName) || null;
     }
-    return files[0];
+    return files[0] || null;
   };
 
   if (type === 'settings') {
@@ -546,10 +572,28 @@ const handleAdminContentPost = async (req: Request, res: Response) => {
       }
     }
 
+    // Check for uploaded site logo file
+    const siteLogoFile = getUploadedFile('site_logo');
+    if (siteLogoFile) {
+      await db.setSetting('site_logo', '/uploads/' + siteLogoFile.filename);
+    } else if (req.body.remove_site_logo === '1') {
+      await db.setSetting('site_logo', '');
+    }
+
+    // Check for uploaded hero overlay background file
+    const heroOverlayFile = getUploadedFile('hero_overlay_image');
+    if (heroOverlayFile) {
+      await db.setSetting('hero_overlay_image', '/uploads/' + heroOverlayFile.filename);
+    } else if (req.body.remove_hero_overlay_image === '1') {
+      await db.setSetting('hero_overlay_image', '');
+    }
+
     // Check for uploaded brochure file
     const brochureFile = getUploadedFile('brochure_file');
     if (brochureFile) {
       await db.setSetting('brochure_url', '/uploads/' + brochureFile.filename);
+    } else if (req.body.remove_brochure_file === '1') {
+      await db.setSetting('brochure_url', '');
     }
 
     (req.session as any).flash_message = 'Settings saved successfully.';
@@ -608,7 +652,7 @@ const handleAdminContentPost = async (req: Request, res: Response) => {
     }
 
     // Handle file upload if present
-    const uploadedImage = getUploadedFile('image') || getUploadedFile();
+    const uploadedImage = getUploadedFile('image') || getUploadedFile('image_path') || getUploadedFile();
     if (uploadedImage) {
       data.image_path = '/uploads/' + uploadedImage.filename;
     }
@@ -643,11 +687,17 @@ app.use((_req: Request, res: Response) => {
   });
 });
 
-async function startServer() {
+export async function startServer() {
   await db.init();
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Northstar Legal CMS server running on port ${PORT}`);
+    console.log(`Compass Legal CMS server running on port ${PORT}`);
   });
 }
 
-startServer();
+// In standard standalone environment (Docker, Cloud Run, Local), start the HTTP server
+if (!process.env.NETLIFY && !process.env.AWS_LAMBDA_FUNCTION_NAME && process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+export { app };
+export default app;

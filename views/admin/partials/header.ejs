@@ -41,7 +41,13 @@
 <div class="admin-shell">
   <aside class="admin-sidebar">
     <a class="admin-brand" href="/admin/index.php">
-      <span><%= (setting('site_name', 'Northstar Legal') || 'N').trim().charAt(0) %></span> <%= setting('site_name', 'Northstar Legal') %>
+      <% if (setting('site_logo')) { %>
+        <img src="<%= setting('site_logo').replace('compass-legal-logo.svg', 'compass-legal-logo-light.svg') %>" alt="<%= setting('site_name', 'COMPASS LEGAL') %>" class="admin-brand-logo">
+        <span class="admin-brand-title"><%= setting('site_name', 'COMPASS LEGAL') %></span>
+      <% } else { %>
+        <span><%= (setting('site_name', 'COMPASS LEGAL') || 'C').trim().charAt(0) %></span>
+        <span class="admin-brand-title"><%= setting('site_name', 'COMPASS LEGAL') %></span>
+      <% } %>
     </a>
     <p class="admin-label">MAIN MENU</p>
     <nav>

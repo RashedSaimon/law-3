@@ -41,8 +41,13 @@
 <header class="site-header">
   <div class="container nav-wrap">
     <a class="brand" href="/" id="brand-link">
-      <span class="brand-mark"><%= (setting('site_name', 'Northstar Legal') || 'N').trim().charAt(0) %></span>
-      <span><%= setting('site_name', 'Northstar Legal') %></span>
+      <% if (setting('site_logo')) { %>
+        <img src="<%= setting('site_logo') %>" alt="<%= setting('site_name', 'COMPASS LEGAL') %>" class="brand-logo-img">
+        <span class="brand-text"><%= setting('site_name', 'COMPASS LEGAL') %></span>
+      <% } else { %>
+        <span class="brand-mark"><%= (setting('site_name', 'COMPASS LEGAL') || 'C').trim().charAt(0) %></span>
+        <span class="brand-text"><%= setting('site_name', 'COMPASS LEGAL') %></span>
+      <% } %>
     </a>
 
     <button class="menu-toggle" aria-label="Toggle Navigation Menu" id="menu-toggle-btn">☰</button>

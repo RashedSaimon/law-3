@@ -4,10 +4,10 @@
   <section class="hero-slider">
     <% hero_slides.forEach((slide, idx) => { %>
       <div class="hero-slide <%= idx === 0 ? 'active' : '' %>" <%= slide.image_path ? `style="--hero-image: url('${slide.image_path}')"` : '' %>>
-        <div class="hero-overlay"></div>
+        <div class="hero-overlay" style="<%- setting('hero_overlay_image') ? `--hero-overlay-img: url('${setting('hero_overlay_image')}');` : '' %> --hero-overlay-opacity: <%= (parseFloat(setting('hero_overlay_opacity', '85')) || 85) / 100 %>;"></div>
         <div class="container">
           <div class="hero-content">
-            <p class="eyebrow"><%= slide.eyebrow || setting('site_name', 'Northstar Legal') %></p>
+            <p class="eyebrow"><%= slide.eyebrow || setting('site_name', 'COMPASS LEGAL') %></p>
             <h1><%- slide.title || setting('hero_title', "From paperwork to possibilities.\nWe've got you covered.") %></h1>
             <p class="hero-copy"><%= slide.text || setting('hero_text', 'Professional, straightforward legal representation across personal and business immigration routes.') %></p>
             <div class="hero-interactive-row">
@@ -57,10 +57,10 @@
   </section>
 <% } else { %>
   <section class="hero"<%- sectionStyle('home_hero') %>>
-    <div class="hero-overlay"></div>
+    <div class="hero-overlay" style="<%- setting('hero_overlay_image') ? `--hero-overlay-img: url('${setting('hero_overlay_image')}');` : '' %> --hero-overlay-opacity: <%= (parseFloat(setting('hero_overlay_opacity', '85')) || 85) / 100 %>;"></div>
     <div class="container">
       <div class="hero-content">
-        <p class="eyebrow"><%= setting('site_name', 'Northstar Legal') %> Practice</p>
+        <p class="eyebrow"><%= setting('site_name', 'COMPASS LEGAL') %> Practice</p>
         <h1><%- setting('hero_title', "From paperwork to possibilities.\nWe've got you covered.") %></h1>
         <p class="hero-copy"><%= setting('hero_text', 'Professional, straightforward legal representation across personal and business immigration routes.') %></p>
         <div class="hero-interactive-row">

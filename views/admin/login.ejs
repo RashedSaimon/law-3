@@ -40,9 +40,13 @@
 <div class="login-container">
   <div class="login-card">
     <div class="login-header">
-      <div class="login-mark"><%= (setting('site_name', 'Northstar Legal') || 'N').trim().charAt(0) %></div>
+      <% if (setting('site_logo')) { %>
+        <img src="<%= setting('site_logo') %>" alt="<%= setting('site_name', 'COMPASS LEGAL') %>" class="login-logo-img">
+      <% } else { %>
+        <div class="login-mark"><%= (setting('site_name', 'COMPASS LEGAL') || 'C').trim().charAt(0) %></div>
+      <% } %>
       <h1>Admin Portal</h1>
-      <p><%= setting('site_name', 'Northstar Legal') %> Management</p>
+      <p><%= setting('site_name', 'COMPASS LEGAL') %> Management</p>
     </div>
 
     <% if (typeof error !== 'undefined' && error) { %>
